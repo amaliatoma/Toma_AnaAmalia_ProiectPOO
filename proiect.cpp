@@ -12,7 +12,7 @@ private:
 	int nrAngajati;
 	static double reducereStudenti;
 public:
-	// geteri 
+	// getteri 
 	char* getNume() {
 		return this->nume;
 	}
@@ -35,7 +35,7 @@ public:
 		return reducereStudenti;
 	}
 
-	//seteri
+	//setteri
 	void setNume(char* nume) {
 		if (this->nume != NULL) {
 			delete[]this->nume;
@@ -128,6 +128,22 @@ public:
 			this->nrAngajati = teatru.nrAngajati;
 		}
 		return *this;
+	}
+
+	friend istream& operator>>(istream& in, Teatru& teatru) {
+		if (teatru.nume != NULL) {
+			delete[]teatru.nume;
+		}
+		char nume[20];
+		cout << "Nume: ";
+		in >> nume;
+		teatru.nume = new char[strlen(nume) + 1];
+		strcpy_s(teatru.nume, strlen(nume) + 1, nume);
+		cout << "Adresa: "; in >> teatru.adresa;
+		cout << "Capacitate maxima: "; in >> teatru.capacitateMax;
+		cout << "Numar sali: "; in >> teatru.nrSali;
+		cout << "Numar angajati"; in >> teatru.nrAngajati;
+		return in;
 	}
 
 	// functie prietena, NU METODA 
@@ -299,6 +315,17 @@ public:
 		return tastatura;
 		
 	}
+	//operator << 
+	friend ostream& operator<< (ostream& out, Piesa& piesa) {
+		cout << "Nume piesa: " << piesa.nume << endl;
+		cout << "Producator: " << piesa.scriitor << endl;
+		cout << "Data: " << piesa.data << endl;
+		cout << "Pret Bilet: " << piesa.pretBilet << endl;
+		cout << "TVA Bilet: " << piesa.TVABilet << endl;
+		cout << "Numar bilete luate: " << piesa.BileteLuate << endl;
+		cout << endl;
+		return out;
+	}
 	// operator ++ preincrementare 
 	Piesa operator++ () {
 		this->pretBilet = this->pretBilet + 16;
@@ -452,6 +479,32 @@ public:
 
 	friend int operator-= (Actor actor1, Actor actor2);
 
+	// operator >> 
+	friend istream& operator>>(istream& in, Actor& actor) {
+		cout << "Nume: "; in >> actor.nume;
+		if (actor.nationalitate != NULL) {
+			delete[]actor.nationalitate;
+		}
+		char nationalitate[20];
+		cout << "Nationalitate: ";
+		in >> nationalitate;
+		actor.nationalitate = new char[strlen(nationalitate) + 1];
+		strcpy_s(actor.nationalitate, strlen(nationalitate) + 1, nationalitate);
+		cout << "Film pentru care este cunoscut: "; in >> actor.filmPtCareECunoscut;
+		cout << "Salariu Brut: "; in >> actor.salariuBrut;
+		return in;
+	}
+	// operator << 
+	friend ostream& operator<<(ostream& out, Actor& actor) {
+		cout << "Nume: " << actor.nume << endl;
+		cout << "An nastere: " << actor.an_nastere << endl;
+		cout << "Nationalitate: " << actor.nationalitate << endl;
+		cout << "Film pentru care e cunoscut/a: " << actor.filmPtCareECunoscut << endl;
+		cout << "Salariu brut: " << actor.salariuBrut << endl;
+		cout << "Impozit pe salariu: " << actor.impozitPeSalariu << endl;
+		cout << endl;
+		return out;
+	}
 	~Actor() {
 		if (this->nationalitate != NULL) {
 			delete[]this->nationalitate;
@@ -459,6 +512,8 @@ public:
 	}
 };
 double Actor::impozitPeSalariu = 0.16;
+
+
 // operator '-='
 int operator-= (Actor actor1, Actor actor2) {
 	actor1.salariuBrut = actor1.salariuBrut - actor2.salariuBrut;
@@ -579,6 +634,8 @@ int main()
 	afisarePiesaGet(piesa2);
 	afisareActorGet(actor3);
 
+	// ******************   FAZA 3   **********************************
+
 	cout << "--------------OPERATORI--------------" << endl;
 	Teatru teatru4;
 	teatru4 = teatru3;
@@ -591,9 +648,9 @@ int main()
 	piesa4 = piesa2;
 	piesa4.afisare();
 
-	/*Piesa piesa5;
+	Piesa piesa5;
 	cin >> piesa5;
-	piesa5.afisare();*/
+	piesa5.afisare();
 	Piesa piesa6;
 	Piesa piesa7;
 	piesa7 = piesa2++;
@@ -618,5 +675,58 @@ int main()
 
 	if (actor > actor3) cout << "Brad Pitt castiga mai mult decat Audrey Hepburn cu"<<(actor -=actor3)<<endl;
 	else cout << "Audrey Hepburn castiga mai mult decat Brad Pitt cu "<<(actor3 -=actor)<<endl;
+
+	// *************************   FAZA 4    *****************************
+
+	cout << "-------------VECTOR TEATRE---------------" << endl;
+
+	Teatru T[3];
+	cout << "Citire vector - teatre" << endl<<"*************"<<endl;
+	for (int i = 0; i < 3; i++) {
+		cin >> T[i];
+	}
+	for (int i = 0; i < 3; i++) {
+		cout << T[i];
+		cout << "******************"<<endl;
+	}
+
+	cout << "-------------VECTOR ACTORI---------------" << endl;
+	Actor actori[3];
+	cout << "Citire vectori - actori : " << endl<<"*************" << endl;
+	for (int i = 0; i < 3; i++) {
+		cin >> actori[i];
+	}
+	for (int i = 0; i < 3; i++) {
+		cout << actori[i];
+		cout << "******************"<<endl;
+	}
+
+	cout << "-------------VECTOR PIESE---------------" << endl;
+	Piesa piese[3];
+	cout << "Citire vectori - piese : " << endl << "*************" << endl;
+	for (int i = 0; i < 3; i++) {
+		cin >> piese[i];
+	}
+	for (int i = 0; i < 3; i++) {
+		cout << piese[i];
+		cout << "******************" << endl;
+	}
+
+	cout << "---------MATRICE ACTORI----------" << endl;
+	Actor Mat_Actori[2][2];
+	for (int i = 0; i < 2; i++) {
+		for (int j = 0; j < 2; j++) {
+			cout << "Actor pozitie: " << i << j << endl;
+			cin >> Mat_Actori[i][j];
+		}
+	}
+
+	for (int i = 0; i < 2; i++) {
+		for (int j = 0; j < 2; j++) {
+			cout << "    ACTOR " << i << j << endl;
+			cout << Mat_Actori[i][j];
+		}
+		cout << endl;
+	}
 
 }
