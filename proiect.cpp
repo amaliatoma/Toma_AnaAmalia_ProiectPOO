@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 using namespace std;
 
 class Teatru {
@@ -146,6 +147,21 @@ public:
 		return in;
 	}
 
+	friend ifstream& operator>>(ifstream& in, Teatru& teatru) {
+		if (teatru.nume != NULL) {
+			delete[]teatru.nume;
+		}
+		char nume[20];
+		in >> nume;
+		teatru.nume = new char[strlen(nume) + 1];
+		strcpy_s(teatru.nume, strlen(nume) + 1, nume);
+		in >> teatru.adresa;
+		in >> teatru.capacitateMax;
+		in >> teatru.nrSali;
+		in >> teatru.nrAngajati;
+		return in;
+	}
+
 	// functie prietena, NU METODA 
 	// operator '<<'
 	friend ostream& operator<< (ostream& consola, const Teatru& teatru) {
@@ -156,6 +172,17 @@ public:
 		consola << "Numar sali: " << teatru.nrSali << endl;
 		consola << "Numar angajati: " << teatru.nrAngajati << endl;
 		consola << "Reducere Studenti: " << teatru.reducereStudenti << endl;
+		consola << endl;
+		return consola;
+	}
+	friend ofstream& operator<< (ofstream& consola, const Teatru& teatru) {
+		consola << teatru.nume << endl;
+		consola << teatru.adresa << endl;
+		consola << teatru.an_infiintare << endl;
+		consola << teatru.capacitateMax << endl;
+		consola << teatru.nrSali << endl;
+		consola << teatru.nrAngajati << endl;
+		consola << teatru.reducereStudenti << endl;
 		consola << endl;
 		return consola;
 	}
@@ -303,7 +330,7 @@ public:
 		{
 			delete[]piesa.data;
 		}
-		char data[10];
+		char data[15];
 		cout << "Data: ";
 		tastatura >> data;
 		piesa.data = new char[strlen(data) + 1];
@@ -341,6 +368,29 @@ public:
 	// operator '!='
 	friend bool operator!=(Piesa piesa1, Piesa piesa2) {
 		return piesa1.pretBilet != piesa2.pretBilet;
+	}
+
+	// metoda care scrie intr-un fisier binar atribut cu atribut
+	void serializare() {
+		ofstream file("fisierBinarPiese.out", ios::binary | ios::out);
+		if (file.is_open()) {
+			int lungime_nume = this->nume.length();
+			file.write((char*)&lungime_nume, sizeof(int));
+			file.write((char*)&this->nume, (sizeof(string) * (this->nume.length())));
+
+			int lungime_scriitor = this->scriitor.length();
+			file.write((char*)&lungime_scriitor, sizeof(int));
+			file.write((char*)&this->scriitor, (sizeof(const string) * this->scriitor.length()));
+
+			int lungime_data = strlen(this->data);
+			file.write((char*)&lungime_data, sizeof(lungime_data));
+			file.write((char*)this->data, (sizeof(char) * (strlen(this->data) + 1)));
+
+			file.write((char*)&this->pretBilet, sizeof(double));
+			file.write((char*)&this->TVABilet, sizeof(double));
+			file.write((char*)&this->BileteLuate, sizeof(int));
+			file.close();
+		}
 	}
 
 	~Piesa() {
@@ -505,6 +555,60 @@ public:
 		cout << endl;
 		return out;
 	}
+	void afisareInFisierBinar() {
+		fstream fisierBinarActorOut("fisierBinarActor.out", ios::binary | ios::out);
+		if (fisierBinarActorOut.is_open()) {
+			int sizeNume = this->nume.length();
+			fisierBinarActorOut.write((char*)&sizeNume, sizeof(int));
+			fisierBinarActorOut.write(this->nume.c_str(), sizeNume);
+			fisierBinarActorOut.write((char*)&this->an_nastere, sizeof(int));
+			int sizeNationalitate = strlen(this->nationalitate);
+			fisierBinarActorOut.write((char*)&sizeNationalitate, sizeof(int));
+			fisierBinarActorOut.write((char*)this->nationalitate, (sizeof(char)*(strlen(nationalitate)+1)));
+			int sizeFilmCunoscut = this->filmPtCareECunoscut.length();
+			fisierBinarActorOut.write((char*)&sizeFilmCunoscut, sizeof(int));
+			fisierBinarActorOut.write(this->filmPtCareECunoscut.c_str(), sizeFilmCunoscut);
+			fisierBinarActorOut.write((char*)&this->salariuBrut, sizeof(double));
+			fisierBinarActorOut.write((char*)&this->impozitPeSalariu, sizeof(double));
+			fisierBinarActorOut.close();
+		}
+	}
+	// eroare logica la citirea din fis Binar :( 
+	//void citireDinFisierBinar() {
+	//	fstream fisierBinarActorIn("fisierBinarActor.out", ios::binary | ios::out);
+	//	if (fisierBinarActorIn.is_open()) {
+	//		int sizeNume;
+	//		fisierBinarActorIn.read((char*)&sizeNume, sizeof(int));
+	//		//alocam memorie pt sirul citit
+	//		char* buffer = new char[sizeNume+1];
+	//		buffer[sizeNume] = '\0';
+	//		//citim sirul de la fisier
+	//		fisierBinarActorIn.read(buffer, sizeNume);
+	//		this->nume = buffer;
+	//		delete[]buffer;
+	//		fisierBinarActorIn.read((char*)&this->an_nastere, sizeof(int));
+	//		int sizeNationalitate;
+	//		fisierBinarActorIn.read((char*)&sizeNationalitate, sizeof(int));
+	//		//alocam memorie pt sir
+	//		if (this->nationalitate != NULL) {
+	//			delete[]this->nationalitate;
+	//		}
+	//		this->nationalitate = new char[sizeNationalitate + 1];
+	//		this->nationalitate[sizeNationalitate] = '\0';
+	//		fisierBinarActorIn.read((char*)this->nationalitate, sizeof(char)*sizeNationalitate+1);
+	//		int sizeFilmCunoscut;
+	//		fisierBinarActorIn.read((char*)&sizeFilmCunoscut, sizeof(int));
+	//		//alocam memorie pt sirul citit
+	//		char* buffer3 = new char[sizeFilmCunoscut+1];
+	//		buffer3[sizeFilmCunoscut] = '\0';
+	//		fisierBinarActorIn.read(buffer3, sizeFilmCunoscut);
+	//		this->filmPtCareECunoscut = buffer3;
+	//		delete[]buffer3;
+	//		fisierBinarActorIn.read((char*)&this->salariuBrut, sizeof(double));
+	//		fisierBinarActorIn.read((char*)&this->impozitPeSalariu, sizeof(double));
+	//		fisierBinarActorIn.close();
+	//	}
+	//}
 	~Actor() {
 		if (this->nationalitate != NULL) {
 			delete[]this->nationalitate;
@@ -568,7 +672,7 @@ public:
 	// constructor cu parametrii 
 	Film(int nrActori, Actor* v_actor, float notaIMDb, string numeFilm, const int an) :an(an) {
 		this->nrActori = nrActori;
-		v_actor = new Actor[this->nrActori];
+		this->v_actor = new Actor[this->nrActori];
 		for (int i = 0; i < this->nrActori; i++) {
 			this->v_actor[i] = v_actor[i];
 		}
@@ -623,6 +727,21 @@ public:
 			cout << endl;
 		}
 		cout << endl;
+		return out;
+	}
+	// operator << afisare - fisier text
+	friend ofstream& operator<< (ofstream& out, const Film& film) {
+		out  << film.numeFilm << endl;
+		out  << film.an << endl;
+		out  << film.notaIMDb << endl;
+		out  << film.nrActori << endl;
+		for (int i = 0; i < film.nrActori; i++) {
+			out << film.v_actor[i].getNume()<<"\n";
+			out << film.v_actor[i].getAn_nastere() << "\n";
+			out << film.v_actor[i].getNationalitate() << "\n";
+			out << film.v_actor[i].getFilmPtCareECunoscut() << "\n";
+			out << film.v_actor[i].getSalariuBrut() << "\n";
+		}
 		return out;
 	}
 };
@@ -842,8 +961,7 @@ int main()
 		}
 		cout << endl;
 	}
-	cout << endl;
-	cout << " ------------- faza 5  ----------- " << endl;
+	// -------------------------- faza 5 ------------------------------
 	cout << "Afisare film care are un vector de mai multi actori : " << endl;
 	Film f1;
 	cout << f1;
@@ -858,4 +976,30 @@ int main()
 	cout << endl;
 	if (f1 > f2) cout << "Divergent este un film mai bun";
 	else cout << "Interstellar este un film mai bun";
+
+	//--------------- faza 6 -----------------------------------------------------
+
+	Teatru teatru5("Teatru de balet", "Bucuresti", 1997, 1000, 10, 50);
+	ofstream fisierTextTeatruOut("fisierTeatruText.txt", ios::out);
+	fisierTextTeatruOut << teatru5;
+	fisierTextTeatruOut.close();
+
+	Teatru teatru6;
+	ifstream fisierTextTeatruIn("fisierTeatruTextCitire.txt", ios::in);
+	fisierTextTeatruIn >> teatru6;
+	cout << endl;
+	cout << teatru6;
+	cout << "--------------------------------------";
+
+	Piesa piesa8;
+	piesa8.serializare();
+
+	Actor actor7("Chris Evans", 1981, "american");
+	actor7.afisareInFisierBinar(); 
+	 
+	Film film3;
+	ofstream fisierTextFilmOut("fisierTextFilmOut.txt", ios::out);
+	fisierTextFilmOut << film3;
+	fisierTextFilmOut.close();
+
 };
