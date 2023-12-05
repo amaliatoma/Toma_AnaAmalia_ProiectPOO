@@ -392,7 +392,6 @@ public:
 			file.close();
 		}
 	}
-
 	~Piesa() {
 		if (this->data != NULL) {
 			delete[] this->data;
@@ -746,6 +745,203 @@ public:
 	}
 };
 
+class SpectacolDeBalet : public Piesa {
+private:
+	char* nivelDeDificultate;
+	string coregrafPrincipal;
+	int numarBalerini;
+	int* varsteBalerini;
+	string muzica;
+public:
+	//constructor fara parametri
+	SpectacolDeBalet() : Piesa("Ballets Jazz Montréal", "James Rogers", "16.11.2023")
+	{
+		this->nivelDeDificultate = new char[strlen("Mediu") + 1];
+		strcpy_s(this->nivelDeDificultate, strlen("Mediu") + 1, "Mediu");
+		this->coregrafPrincipal = "Alexandra Damiani";
+		this->numarBalerini = 2;
+		this->varsteBalerini = new int[2] {23,24};
+		this->muzica = "Dance Me de Leonard Cohen";
+	}
+	//constructor de copiere
+	SpectacolDeBalet(const SpectacolDeBalet& balet) : Piesa(balet) {  //upcasting
+		this->nivelDeDificultate = new char[strlen(balet.nivelDeDificultate) + 1];
+		strcpy_s(this->nivelDeDificultate, strlen(balet.nivelDeDificultate) + 1, balet.nivelDeDificultate);
+		this->coregrafPrincipal = balet.coregrafPrincipal;
+		this->numarBalerini = balet.numarBalerini;
+		this->varsteBalerini = new int[balet.numarBalerini];
+		for (int i = 0; i < balet.numarBalerini; i++) {
+			this->varsteBalerini[i] = balet.varsteBalerini[i];
+		}
+		this->muzica = balet.muzica;
+	}
+	//constructor cu toti parametrii
+	SpectacolDeBalet(string nume, const string scriitor, const char* data, double pretBilet, int BileteLuate, const char* nivel,
+		string coregrafPrincipal, int numarBalerini, int* varsteBalerini, string muzica) :Piesa(nume, scriitor, data, pretBilet, BileteLuate) {
+		this->nivelDeDificultate = new char[strlen(nivel) + 1];
+		strcpy_s(this->nivelDeDificultate, strlen(nivel) + 1, nivel);
+		this->coregrafPrincipal = coregrafPrincipal;
+		this->numarBalerini = numarBalerini;
+		this->varsteBalerini = new int[numarBalerini];
+		for (int i = 0; i < numarBalerini; i++) {
+			this->varsteBalerini[i] = varsteBalerini[i];
+		}
+		this->muzica = muzica;
+	}
+	//operator =
+	SpectacolDeBalet operator=(const SpectacolDeBalet& balet) {
+		if (this != &balet) {
+			// apelam mai intai operatorul de la clasa Piesa
+			Piesa ::operator=(balet);
+			if (this->nivelDeDificultate != NULL) {
+				delete[]this->nivelDeDificultate;
+			}
+			this->nivelDeDificultate = new char[strlen(balet.nivelDeDificultate) + 1];
+			strcpy_s(this->nivelDeDificultate, strlen(balet.nivelDeDificultate) + 1, balet.nivelDeDificultate);
+			this->coregrafPrincipal = balet.coregrafPrincipal;
+			this->numarBalerini = balet.numarBalerini;
+			if (this->varsteBalerini != NULL) {
+				delete[]this->varsteBalerini;
+			}
+			this->varsteBalerini = new int[balet.numarBalerini];
+			for (int i = 0; i < balet.numarBalerini; i++) {
+				this->varsteBalerini[i] = balet.varsteBalerini[i];
+			}
+			this->muzica = balet.muzica;
+		}
+		return *this;
+ 	}
+	// metoda de afisare
+	void afisare() {
+		cout << "Nume piesa: " << this->getNume() << endl;
+		cout << "Producator: " << this->getScriitor() << endl;
+		cout << "Data: " << this->getData() << endl;
+		cout << "Pret Bilet: " << this->getPretBilet() << endl;
+		cout << "TVA Bilet: " << this->getTVABilet() << endl;
+		cout << "Numar bilete luate: " << this->getBileteLuate() << endl;
+		cout << "Nivel de dificultate : " << this->nivelDeDificultate << endl;
+		cout << "Coregraf principal: " << this->coregrafPrincipal << endl;
+		cout << "Numar de balerini : " << this->numarBalerini << endl;
+		cout << "Varstele balerinilor: ";
+		for (int i = 0; i < this->numarBalerini; i++) {
+			cout << this->varsteBalerini[i] << " ";
+		}
+		cout << endl;
+	}
+	// geteri
+	char* getNivelDeDificultate() {
+		return this->nivelDeDificultate;
+	}
+	string getCoregrafPrincipal() {
+		return this->coregrafPrincipal;
+	}
+	int getNumarDeBalerini() {
+		return this->numarBalerini;
+	}
+	string getMuzica() {
+		return this->muzica;
+	}
+	//seteri
+	void setNivelDeDificultate(const char* nivel) {
+		if (this->nivelDeDificultate != NULL) {
+			delete[]this->nivelDeDificultate;
+		}
+		this->nivelDeDificultate = new char[strlen(nivel) + 1];
+		strcpy_s(this->nivelDeDificultate, strlen(nivel) + 1, nivel);
+	}
+	void setCoregrafPrincipal(string coregraf) {
+		if (coregraf.length() > 3) {
+			this->coregrafPrincipal = coregraf;
+		}
+	}
+	void setMuzica(string muzica) {
+		if (muzica.length() > 3) {
+			this->muzica = muzica;
+		}
+	}
+	~SpectacolDeBalet() {
+		if (this->nivelDeDificultate != NULL) {
+			delete[]this->nivelDeDificultate;
+		}
+		if (this->varsteBalerini != NULL) {
+			delete[]this->varsteBalerini;
+		}
+	}
+};
+
+class TeatruAerLiber : public Teatru {
+private:	
+	double taxaParcarePeOra;
+	int nrParcariMax;
+	bool scenaDeschisa; // este deschis teatrul? daca e iarna, nu e
+public:
+	// geteri
+	double getTaxaParcarePeOra() {
+		return this->taxaParcarePeOra;
+	}
+	int getNrParcariMax() {
+		return this->nrParcariMax;
+	}
+	bool getScenaDeschisa() {
+		return this->scenaDeschisa;
+	}
+	// seteri
+	void setTaxaParcarePeOra(double taxa) {
+		this->taxaParcarePeOra = taxa;
+	}
+	void setNrParcariMax(int capacitate) {
+		this->nrParcariMax = capacitate;
+	}
+	void setScenaDeschisa(bool deschisSauInchis) {
+		this->scenaDeschisa = deschisSauInchis;
+	}
+	//constructor fara parametrii
+	TeatruAerLiber() : Teatru("Teatru sub luna","Str. Alexandru Ioan Cuza", 2012) {
+		this->taxaParcarePeOra = 10;
+		this->nrParcariMax = 50;
+		this->scenaDeschisa = true;
+	}
+	//constructor cu toti parametrii
+	TeatruAerLiber(const char* nume, string adresa, const int an, int capacitateMax, int nrSali, int nrAngajati,
+		double taxaParcarePeOra, int nrParcariMax, bool scenaDeschisa) : Teatru(nume, adresa, an, capacitateMax, nrSali, nrAngajati) {
+		this->taxaParcarePeOra = taxaParcarePeOra;
+		this->nrParcariMax = nrParcariMax;
+		this->scenaDeschisa = scenaDeschisa;
+	}
+	//constructor de copiere
+	TeatruAerLiber(const TeatruAerLiber& tal) : Teatru(tal) {
+		this->taxaParcarePeOra = tal.taxaParcarePeOra;
+		this->nrParcariMax = tal.nrParcariMax;
+		this->scenaDeschisa = tal.scenaDeschisa;
+	}
+	// operator = 
+	TeatruAerLiber operator=(const TeatruAerLiber& tal) {
+		if (this != &tal) {
+			Teatru::operator=(tal);
+			this->taxaParcarePeOra = tal.taxaParcarePeOra;
+			this->nrParcariMax = tal.nrParcariMax;
+			this->scenaDeschisa = tal.scenaDeschisa;
+		}
+		return *this;
+	}
+	//metoda afisare 
+	void afisare() {
+		cout << "Nume teatru : " << this->getNume() << endl;
+		cout << "Adresa: " << this->getAdresa() << endl;
+		cout << "An infiintare: " << this->getAn_infiintare() << endl;
+		cout << "Capacitate maxima: " << this->getCapacitateMax() << endl;
+		cout << "Numar sali: " << this->getNrSali() << endl;
+		cout << "Numar de angajati: " << this->getNrAngajati() << endl;
+		cout << "Reducere studenti: " << getReducereStudenti() << endl;
+		cout << "Taxa parcare: " << this->taxaParcarePeOra << endl;
+		cout << "Nr maxim de locuri de parcare: " << this->nrParcariMax << endl;
+		cout << "Este deschisa scena? ";
+		if (this->scenaDeschisa == true) cout << "Da. ";
+		else cout << "Nu. ";
+		cout << endl;
+	}
+	~TeatruAerLiber() {};
+};
 
 // operator '-='
 int operator-= (Actor actor1, Actor actor2) {
@@ -1002,4 +1198,26 @@ int main()
 	fisierTextFilmOut << film3;
 	fisierTextFilmOut.close();
 
+	//--------------- Faza 7 --------------------------
+	cout << "*********************   Faza 7  **********************";
+	cout << endl;
+	SpectacolDeBalet b1;
+	b1.afisare();
+	cout << "-------------------------------"<<endl;
+	SpectacolDeBalet b2 = b1;
+	b2.afisare();
+	cout << "-----------------------------------"<<endl;
+	int* v3 = new int[10] {20, 26, 19, 24, 21, 27, 30, 25, 23, 23};
+	SpectacolDeBalet b3("Spargatorul de nuci", "Piotr Ilici Ceaikovski", "30.12.2023", 50, 3, "Dificil", "Lev Ivanov", 10, v3, "suita simfonica");
+	b3.afisare();
+	
+	TeatruAerLiber tal1;
+	tal1.afisare();
+	cout << "------------------------" << endl;
+	TeatruAerLiber tal2("Verde la Teatru", "Str Libertatii", 2016, 100, 1, 30, 15, 100, false);
+	cout << tal2.getNume() << endl;
+	cout << "------------------------" << endl;
+	TeatruAerLiber tal3(tal2);
+	tal3.afisare();
+	cout << "------------------------" << endl;
 };
