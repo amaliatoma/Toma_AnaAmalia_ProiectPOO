@@ -811,6 +811,23 @@ public:
 		}
 		return *this;
 	}
+	friend ostream& operator<< (ostream& out, SpectacolDeBalet& b) {
+		out << "Nume piesa: " << b.getNume() << endl;
+		out << "Producator: " << b.getScriitor() << endl;
+		out << "Data: " << b.getData() << endl;
+		out << "Pret Bilet: " << b.getPretBilet() << endl;
+		out << "TVA Bilet: " << b.getTVABilet() << endl;
+		out << "Numar bilete luate: " << b.getBileteLuate() << endl;
+		out << "Nivel de dificultate : " << b.nivelDeDificultate << endl;
+		out << "Coregraf principal: " << b.coregrafPrincipal << endl;
+		out << "Numar de balerini : " << b.numarBalerini << endl;
+		out << "Varstele balerinilor: ";
+		for (int i = 0; i < b.numarBalerini; i++) {
+			cout << b.varsteBalerini[i] << " ";
+		}
+		cout << endl;
+		return out;
+	}
 	// metoda de afisare
 	void afisare() {
 		cout << "Nume piesa: " << this->getNume() << endl;
@@ -924,6 +941,22 @@ public:
 		}
 		return *this;
 	}
+	friend ostream& operator<< (ostream& out, TeatruAerLiber tal) {
+		out << "Nume teatru : " << tal. getNume() << endl;
+		out << "Adresa: " << tal.getAdresa() << endl;
+		out << "An infiintare: " << tal.getAn_infiintare() << endl;
+		out << "Capacitate maxima: " << tal.getCapacitateMax() << endl;
+		out << "Numar sali: " << tal.getNrSali() << endl;
+		out << "Numar de angajati: " << tal. getNrAngajati() << endl;
+		out << "Reducere studenti: " << tal.getReducereStudenti() << endl;
+		out << "Taxa parcare: " << tal.taxaParcarePeOra << endl;
+		out << "Nr maxim de locuri de parcare: " << tal.nrParcariMax << endl;
+		out << "Este deschisa scena? ";
+		if (tal.scenaDeschisa == true) cout << "Da. ";
+		else cout << "Nu. ";
+		cout << endl;
+		return out;
+	}
 	//metoda afisare 
 	void afisare() {
 		cout << "Nume teatru : " << this->getNume() << endl;
@@ -1018,37 +1051,46 @@ int main()
 	cout << endl;
 	SpectacolDeBalet b1;
 	cout << "***** Afisare spectacol de balet b1 *****" << endl <<endl;
-	b1.afisare();
-	cout << endl << endl;
-	SpectacolDeBalet b2 = b1;
+	cout << b1 << endl << endl;
+
+
+	SpectacolDeBalet b2;
+	b2 = b1;
 	cout << "***** Afisare spectacol de balet b2 *****" << endl << endl;
-	b2.afisare();
-	cout << endl << endl;
+	cout<< b2 << endl << endl;
+
+
 	int* v3 = new int[10] {20, 26, 19, 24, 21, 27, 30, 25, 23, 23};
 	SpectacolDeBalet b3("Spargatorul de nuci", "Piotr Ilici Ceaikovski", "30.12.2023", 50, 3, "Dificil", "Lev Ivanov", 10, v3, "suita simfonica");
 	cout << "***** Afisare spectacol de balet b3 *****" << endl << endl;
-	b3.afisare();
-	cout << endl << endl;
+	cout<< b3 << endl << endl;
+
+
 
 	SpectacolDeBalet b4("Lacul Lebedelor", "Piotr Ilici Ceaikovski", "26.01.2024", 75, 56, "Dificil", "Oleg Danovski", 10, v3, "suita - lacul lebedelor");
 	cout << "***** Afisare spectacol de balet b4 *****" << endl << endl;
-	b4.afisare();
-	cout << endl << endl;
+	cout << b4 << endl << endl;
+	
 
 	TeatruAerLiber tal1;
 	cout << "***** Afisare obiect - teatru in aer liber tal1 *****" << endl << endl;
-	tal1.afisare();
-	cout << endl << endl;
+	cout<< tal1 << endl << endl;
+
+
 
 	TeatruAerLiber tal2("Verde la Teatru", "Str Libertatii", 2016, 100, 1, 30, 15, 100, false);
-	cout << "***** Afisare NUME - cu ajutorul lui get -  tal2 *****" << endl << endl;
+	cout << "***** Afisare NUME , CAPACITATE MAX. , NR ANGAJATI (dupa set)- cu ajutorul lui get -  tal2 *****" << endl << endl;
 	cout << tal2.getNume() << endl;
+	cout << tal2.getCapacitateMax() << endl;
+	tal2.setNrAngajati(10);
+	cout << tal2.getNrAngajati()<<endl;
 	cout << endl << endl;
 	
+
+
 	TeatruAerLiber tal3(tal2);
 	cout << "***** Afisare obiect - teatru in aer liber tal3 *****" << endl <<endl;
-	tal3.afisare();
-	cout << endl << endl;
+	cout<< tal3 << endl << endl;
 
 	// upcasting
 	cout << "****** UPCASTING + AFISARE suma incasata - piesa 1 <= b3 ******" << endl << endl;
