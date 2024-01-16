@@ -3,6 +3,45 @@
 #include <fstream>
 using namespace std;
 
+// clasa abstracta - Eveniment
+class Eveniment {
+private:
+	int nrParticipanti;
+	string locatie;
+public:
+	Eveniment() {
+		this->nrParticipanti = 35;
+		this->locatie = "No name";
+	}
+	// geteri
+	int getNrParticipanti() {
+		return this->nrParticipanti;
+	}
+	string getLocatie() {
+		return this->locatie;
+	}
+	virtual double Casierie() = 0;
+
+	virtual ~Eveniment() {
+	};
+};
+// clasa abstracta - Persoana
+class Persoana {
+private:
+	string email;
+	string telefon;
+public:
+	string getEmail() {
+		return this->email;
+	}
+	string getTelefon() {
+		return this->telefon;
+	}
+	virtual string Activitate() = 0;
+	virtual ~Persoana() {
+	}
+};
+
 class Teatru {
 private:
 	char* nume;
@@ -208,7 +247,7 @@ bool operator< (Teatru teatru1, Teatru teatru2) {
 	return teatru1.capacitateMax < teatru2.capacitateMax;
 }
 
-class Piesa {
+class Piesa : public Eveniment {
 private:
 	string nume;
 	const string scriitor;
@@ -278,7 +317,8 @@ public:
 		this->BileteLuate = 40;
 	}
 	// constructor CU TOTI parametrii
-	Piesa(string nume, const string scriitor, const char* data, double pretBilet, int BileteLuate) : scriitor(scriitor) {
+	Piesa(string nume, const string scriitor, const char* data, double pretBilet, int BileteLuate) :
+		scriitor(scriitor) {
 		this->nume = nume;
 		this->data = new char[strlen(data) + 1];
 		strcpy_s(this->data, strlen(data) + 1, data);
@@ -299,9 +339,10 @@ public:
 		this->pretBilet = piesa.pretBilet;
 		this->BileteLuate = piesa.BileteLuate;
 	}
-	// metoda calculeaza casieria de la vanzarea biletelor: 
-	void sold() {
-		cout << "Suma obtinuta de la vanzarea biletelor: " << this->pretBilet * this->BileteLuate << " de lei." << endl;
+
+	double Casierie()
+	{
+		return this->getNrParticipanti() * this->pretBilet;
 	}
 
 	friend void TotalBilete(Piesa piesa1, Piesa piesa2);
@@ -370,6 +411,10 @@ public:
 		return piesa1.pretBilet != piesa2.pretBilet;
 	}
 
+	void sold() {
+		cout << "Suma obtinuta de la vanzarea biletelor: " << this->pretBilet * this->BileteLuate << " de lei." << endl;
+	}
+
 	// metoda care scrie intr-un fisier binar atribut cu atribut
 	void serializare() {
 		ofstream file("fisierBinarPiese.out", ios::binary | ios::out);
@@ -400,7 +445,7 @@ public:
 };
 double Piesa::TVABilet = 0.05;
 
-class Actor {
+class Actor : public Persoana {
 private:
 	string nume;
 	const int an_nastere;
@@ -470,7 +515,8 @@ public:
 		this->salariuBrut = 170000;
 	}
 	//constructor CU TOTI parametrii
-	Actor(string nume, const int an, const char* nationalitate, string filmPtCareECunoscut, double salariuBrut) :an_nastere(an) {
+	Actor( string nume, const int an, const char* nationalitate,
+		string filmPtCareECunoscut, double salariuBrut) :an_nastere(an) {
 		this->nume = nume;
 		this->nationalitate = new char[strlen(nationalitate) + 1];
 		strcpy_s(this->nationalitate, strlen(nationalitate) + 1, nationalitate);
@@ -478,7 +524,8 @@ public:
 		this->salariuBrut = salariuBrut;
 	}
 	// constructor parametrii PARTIAL
-	Actor(string nume, const int an, const char* nationalitate) :an_nastere(an), filmPtCareECunoscut("Breakfast at Tiffany's"), salariuBrut(220000) {
+	Actor(string nume, const int an, const char* nationalitate) :an_nastere(an),
+		filmPtCareECunoscut("Breakfast at Tiffany's"), salariuBrut(220000) {
 		this->nume = nume;
 		this->nationalitate = new char[strlen(nationalitate) + 1];
 		strcpy_s(this->nationalitate, strlen(nationalitate) + 1, nationalitate);
@@ -509,6 +556,10 @@ public:
 			this->salariuBrut = actor.salariuBrut;
 		}
 		return *this;
+	}
+
+	string Activitate() {
+		return "Actorul interpreteaza un rol.";
 	}
 	// operator -- pre
 	Actor operator--() {
@@ -616,12 +667,13 @@ public:
 };
 double Actor::impozitPeSalariu = 0.16;
 
-class Film {
+class Film : public Eveniment {
 	int nrActori;
 	Actor* v_actor;
 	float notaIMDb;
 	string numeFilm;
 	const int an;
+	int pretBilet;
 public:
 	// geteri
 	int getNrActori() {
@@ -638,6 +690,9 @@ public:
 	}
 	const int getAn() {
 		return this->an;
+	}
+	int getPretBilet() {
+		return this->pretBilet;
 	}
 	// seteri
 	void setNrActori(int nr) {
@@ -658,8 +713,11 @@ public:
 	void setNumeFilm(string nume) {
 		this->numeFilm = nume;
 	}
+	void setPretBilet(int pretBiletNou) {
+		this->pretBilet = pretBiletNou;
+	}
 	// constructor fara parametrii
-	Film() : an(2013) {
+	Film() : an(2013), Eveniment() {
 		this->nrActori = 3;
 		this->v_actor = new Actor[this->nrActori];
 		for (int i = 0; i < this->nrActori; i++) {
@@ -667,9 +725,11 @@ public:
 		}
 		this->notaIMDb = 6.8;
 		this->numeFilm = "Divergent";
+		this->pretBilet = 30;
 	}
 	// constructor cu parametrii 
-	Film(int nrActori, Actor* v_actor, float notaIMDb, string numeFilm, const int an) :an(an) {
+	Film(int nrActori, Actor* v_actor, float notaIMDb,
+		string numeFilm, const int an, int pretBilet) :an(an) {
 		this->nrActori = nrActori;
 		this->v_actor = new Actor[this->nrActori];
 		for (int i = 0; i < this->nrActori; i++) {
@@ -677,6 +737,7 @@ public:
 		}
 		this->notaIMDb = notaIMDb;
 		this->numeFilm = numeFilm;
+		this->pretBilet = pretBilet;
 	}
 	// constructor de copiere
 	Film(const Film& film) : an(film.an) {
@@ -687,6 +748,11 @@ public:
 		}
 		this->notaIMDb = film.notaIMDb;
 		this->numeFilm = film.numeFilm;
+		this->pretBilet = film.pretBilet;
+	}
+
+	double Casierie() {
+		return this->getNrParticipanti() * this->pretBilet;
 	}
 	//destructor 
 	~Film() {
@@ -711,6 +777,7 @@ public:
 			}
 			this->notaIMDb = film.notaIMDb;
 			this->numeFilm = film.numeFilm;
+			this->pretBilet = film.pretBilet;
 		}
 		return *this;
 	}
@@ -726,11 +793,13 @@ public:
 			cout << endl;
 		}
 		cout << endl;
+		cout << "Pret Bilet: " << film.pretBilet << endl;
 		return out;
 	}
 	// operator << afisare - fisier text
 	friend ofstream& operator<< (ofstream& out, const Film& film) {
 		out << film.numeFilm << endl;
+		out << film.pretBilet << endl;
 		out << film.an << endl;
 		out << film.notaIMDb << endl;
 		out << film.nrActori << endl;
@@ -942,12 +1011,12 @@ public:
 		return *this;
 	}
 	friend ostream& operator<< (ostream& out, TeatruAerLiber tal) {
-		out << "Nume teatru : " << tal. getNume() << endl;
+		out << "Nume teatru : " << tal.getNume() << endl;
 		out << "Adresa: " << tal.getAdresa() << endl;
 		out << "An infiintare: " << tal.getAn_infiintare() << endl;
 		out << "Capacitate maxima: " << tal.getCapacitateMax() << endl;
 		out << "Numar sali: " << tal.getNrSali() << endl;
-		out << "Numar de angajati: " << tal. getNrAngajati() << endl;
+		out << "Numar de angajati: " << tal.getNrAngajati() << endl;
 		out << "Reducere studenti: " << tal.getReducereStudenti() << endl;
 		out << "Taxa parcare: " << tal.taxaParcarePeOra << endl;
 		out << "Nr maxim de locuri de parcare: " << tal.nrParcariMax << endl;
@@ -1011,70 +1080,224 @@ void anuntPublicitar(Teatru teatru, Piesa piesa, Actor actor) {
 
 }
 
-// afisare cu ajutorul geterilor
-void afisareTeatruGet(Teatru teatru) {
-	cout << "Nume teatru : " << teatru.getNume() << endl;
-	cout << "Adresa: " << teatru.getAdresa() << endl;
-	cout << "An infiintare: " << teatru.getAn_infiintare() << endl;
-	cout << "Capacitate maxima: " << teatru.getCapacitateMax() << endl;
-	cout << "Numar sali: " << teatru.getNrSali() << endl;
-	cout << "Numar de angajati: " << teatru.getNrAngajati() << endl;
-	cout << "Reducere studenti: " << teatru.getReducereStudenti() << endl;
-	cout << endl;
-}
-
-void afisarePiesaGet(Piesa piesa) {
-	cout << "Nume piesa: " << piesa.getNume() << endl;
-	cout << "Scriitor: " << piesa.getScriitor() << endl;
-	cout << "Data: " << piesa.getData() << endl;
-	cout << "Pret Bilet: " << piesa.getPretBilet() << endl;
-	cout << "TVA Bilet: " << piesa.getTVABilet() << endl;
-	cout << "Numar bilete luate: " << piesa.getBileteLuate() << endl;
-	cout << endl;
-}
-
-void afisareActorGet(Actor actor) {
-	cout << "Nume: " << actor.getNume() << endl;
-	cout << "An nastere: " << actor.getAn_nastere() << endl;
-	cout << "Nationalitate: " << actor.getNationalitate() << endl;
-	cout << "Film pentru care e cunoscut/a: " << actor.getFilmPtCareECunoscut() << endl;
-	cout << "Salariu brut: " << actor.getSalariuBrut() << endl;
-	cout << "Impozit pe salariu: " << actor.getImpozitPeSalariu() << endl;
-	cout << endl;
-}
-
 int main()
-{
 
-	//--------------- Faza 7 --------------------------
+{   // ***********************  FAZA 1 ******************************
+	Teatru teatru;
+	teatru.afisare();
+
+	Teatru teatru2("National Bucuresti", "Piata Universitatii", 1973, 2880, 150, 20);
+	teatru2.afisare();
+	
+	Teatru::setReducereStudenti(0.9);
+
+	Teatru teatru3("Modern", "Strada Frumoasa", 2023);
+	teatru3.afisare();
+
+	cout << "--------------------------------------" << endl;
+
+	Piesa piesa;
+	piesa.afisare();
+
+	Piesa piesa2("Visul", "Alexa Bacau", "22.10.2023", 70.5, 0);
+	piesa2.afisare();
+
+	Piesa::setTVAbilet(0.1);
+
+	Piesa piesa3("Nu vorbim despre asta", "Alexandra Felseghi", "6.11.2023");
+	piesa3.afisare();
+
+	cout << "--------------------------------------" << endl;
+
+	Actor actor;
+	actor.afisare();
+
+	Actor actor2("Robert Downey Jr.", 1965, "SUA", "Avengers", 20000);
+	actor2.afisare();
+
+	Actor actor3("Audrey Hepburn", 1929, "Belgia");
+	actor3.afisare();
+
+	actor3.salariuNet();
+
+	// ***********************  FAZA 2 ******************************
+	cout << "--------------------------------------" << endl;
+
+	locuriDisponibile(teatru, piesa);
+
+	cout << "--------------------------------------" << endl;
+
+	anuntPublicitar(teatru, piesa, actor);
+
+
+	// ***********************  FAZA 3 ******************************
+
+
+	cout << "--------------OPERATORI--------------" << endl;
+	Teatru teatru4;
+	teatru4 = teatru3;
+	cout << teatru4;
+
+	if (teatru < teatru2) cout << "Teatru 2 este mai mare." << endl;
+	cout << teatru2 - teatru;
+
+	Piesa piesa4;
+	piesa4 = piesa2;
+	piesa4.afisare();
+
+	/*Piesa piesa5;
+	cin >> piesa5;
+	piesa5.afisare();*/
+	Piesa piesa6;
+	Piesa piesa7;
+	piesa7 = piesa2++;
+	piesa7.afisare();
+	piesa6 = ++piesa2;
+	piesa6.afisare();
+
+	if (piesa6 != piesa7) cout << "Cele doua nu au pret egal." << endl;
+	else cout << "Piesele au pret egal" << endl;
+
+
+	Actor actor4;
+	actor4 = actor3;
+	actor4.afisare();
+
+	Actor actor5;
+	Actor actor6;
+	actor5 = actor2--;
+	actor5.afisare();
+	actor6 = --actor2;
+	actor6.afisare();
+
+	if (actor > actor3) cout << "Brad Pitt castiga mai mult decat Audrey Hepburn cu" << (actor -= actor3) << endl;
+	else cout << "Audrey Hepburn castiga mai mult decat Brad Pitt cu " << (actor3 -= actor) << endl;
+
+
+	// ***********************  FAZA 4 ******************************
+
+	cout << "-------------VECTOR TEATRE---------------" << endl;
+
+	Teatru T[3];
+	cout << "Citire vector - teatre" << endl << "*************" << endl;
+	for (int i = 0; i < 3; i++) {
+		cin >> T[i];
+	}
+	for (int i = 0; i < 3; i++) {
+		cout << T[i];
+		cout << "******************" << endl;
+	}
+
+	cout << "-------------VECTOR ACTORI---------------" << endl;
+	Actor actori[3];
+	cout << "Citire vectori - actori : " << endl << "*************" << endl;
+	for (int i = 0; i < 3; i++) {
+		cin >> actori[i];
+	}
+	for (int i = 0; i < 3; i++) {
+		cout << actori[i];
+		cout << "******************" << endl;
+	}
+
+	cout << "-------------VECTOR PIESE---------------" << endl;
+	Piesa piese[3];
+	cout << "Citire vectori - piese : " << endl << "*************" << endl;
+	for (int i = 0; i < 3; i++) {
+		cin >> piese[i];
+	}
+	for (int i = 0; i < 3; i++) {
+		cout << piese[i];
+		cout << "******************" << endl;
+	}
+
+	cout << "---------MATRICE ACTORI----------" << endl;
+	Actor Mat_Actori[2][2];
+	for (int i = 0; i < 2; i++) {
+		for (int j = 0; j < 2; j++) {
+			cout << "Actor pozitie: " << i << j << endl;
+			cin >> Mat_Actori[i][j];
+		}
+	}
+
+	for (int i = 0; i < 2; i++) {
+		for (int j = 0; j < 2; j++) {
+			cout << "    ACTOR " << i << j << endl;
+			cout << Mat_Actori[i][j];
+		}
+		cout << endl;
+	}
+
+	// ***********************  FAZA 5 ******************************
+
+	cout << "Afisare film care are un vector de mai multi actori : " << endl;
+	Film f1;
+	cout << f1;
+	cout << endl;
+	cout << "Citire vector de actori: ";
+	Actor* v_actor = new Actor[2];
+	for (int i = 0; i < 2; i++) {
+		cin >> v_actor[i];
+	}
+	Film f2(2, v_actor, 8.00, "Interstellar", 2014, 35);
+	cout << f2;
+	cout << endl;
+	if (f1 > f2) cout << "Divergent este un film mai bun";
+	else cout << "Interstellar este un film mai bun";
+
+	// ***********************  FAZA 6 ******************************
+
+	Teatru teatru5("Teatru de balet", "Bucuresti", 1997, 1000, 10, 50);
+	ofstream fisierTextTeatruOut("fisierTeatruText.txt", ios::out);
+	fisierTextTeatruOut << teatru5;
+	fisierTextTeatruOut.close();
+
+	Teatru teatru6;
+	ifstream fisierTextTeatruIn("fisierTeatruTextCitire.txt", ios::in);
+	fisierTextTeatruIn >> teatru6;
+	cout << endl;
+	cout << teatru6;
+	cout << "--------------------------------------";
+
+	Piesa piesa8;
+	piesa8.serializare();
+
+	Actor actor7("Chris Evans", 1981, "american");
+	actor7.afisareInFisierBinar();
+
+	Film film3;
+	ofstream fisierTextFilmOut("fisierTextFilmOut.txt", ios::out);
+	fisierTextFilmOut << film3;
+	fisierTextFilmOut.close();
+
+	// ***********************  FAZA 7 ******************************
 	cout << "*********************   Faza 7  **********************";
 	cout << endl;
 	SpectacolDeBalet b1;
-	cout << "***** Afisare spectacol de balet b1 *****" << endl <<endl;
+	cout << "***** Afisare spectacol de balet b1 *****" << endl << endl;
 	cout << b1 << endl << endl;
 
 
 	SpectacolDeBalet b2;
 	b2 = b1;
 	cout << "***** Afisare spectacol de balet b2 *****" << endl << endl;
-	cout<< b2 << endl << endl;
+	cout << b2 << endl << endl;
 
 
 	int* v3 = new int[10] {20, 26, 19, 24, 21, 27, 30, 25, 23, 23};
 	SpectacolDeBalet b3("Spargatorul de nuci", "Piotr Ilici Ceaikovski", "30.12.2023", 50, 3, "Dificil", "Lev Ivanov", 10, v3, "suita simfonica");
 	cout << "***** Afisare spectacol de balet b3 *****" << endl << endl;
-	cout<< b3 << endl << endl;
+	cout << b3 << endl << endl;
 
 
 
 	SpectacolDeBalet b4("Lacul Lebedelor", "Piotr Ilici Ceaikovski", "26.01.2024", 75, 56, "Dificil", "Oleg Danovski", 10, v3, "suita - lacul lebedelor");
 	cout << "***** Afisare spectacol de balet b4 *****" << endl << endl;
 	cout << b4 << endl << endl;
-	
+
 
 	TeatruAerLiber tal1;
 	cout << "***** Afisare obiect - teatru in aer liber tal1 *****" << endl << endl;
-	cout<< tal1 << endl << endl;
+	cout << tal1 << endl << endl;
 
 
 
@@ -1083,36 +1306,67 @@ int main()
 	cout << tal2.getNume() << endl;
 	cout << tal2.getCapacitateMax() << endl;
 	tal2.setNrAngajati(10);
-	cout << tal2.getNrAngajati()<<endl;
+	cout << tal2.getNrAngajati() << endl;
 	cout << endl << endl;
-	
+
 
 
 	TeatruAerLiber tal3(tal2);
-	cout << "***** Afisare obiect - teatru in aer liber tal3 *****" << endl <<endl;
-	cout<< tal3 << endl << endl;
+	cout << "***** Afisare obiect - teatru in aer liber tal3 *****" << endl << endl;
+	cout << tal3 << endl << endl;
 
 	// upcasting
 	cout << "****** UPCASTING + AFISARE suma incasata - piesa 1 <= b3 ******" << endl << endl;
-	Piesa* piesa1;
-	piesa1 = &b3;
-	cout << endl << *piesa1;
+	Piesa* piesa11;
+	piesa11 = &b3;
+	cout << endl << *piesa11;
 	cout << endl;
-	(*piesa1).sold();
+	(*piesa11).sold();
 	cout << endl << endl;
 
 
 	cout << "****** UPCASTING + AFISARE suma incasata - piesa 2 <= b4 ******" << endl << endl;
-	Piesa* piesa2;
-	piesa2 = &b4;
-	cout << endl << *piesa2;
+	Piesa* piesa20;
+	piesa20 = &b4;
+	cout << endl << *piesa20;
 	cout << endl;
-	(*piesa2).sold();
+	(*piesa20).sold();
 	cout << endl << endl;
 
 
 	cout << "****** TOTAL BILETE VANDUTE - piesa 1 & piesa 2 ******" << endl << endl;
-	TotalBilete(*piesa1, *piesa2);
+	TotalBilete(*piesa11, *piesa20);
 	cout << endl;
+
+	// ***********************  FAZA 8 ******************************
+	int v_balerini[10] = { 23,25,25,18,19,19,22,20,21,21 };
+	Actor actori[3];
+	for (int i = 0; i < 3; i++) {
+		actori[i] = Actor();
+	}
+	Eveniment** pointerEvenimente;
+	pointerEvenimente = new Eveniment * [10];
+	pointerEvenimente[0] = new Piesa("Tom si Jerry", "Nush", "13.01.2024", 50, 12);
+	pointerEvenimente[1] = new Piesa();
+	pointerEvenimente[2] = new SpectacolDeBalet();
+	pointerEvenimente[3] = new SpectacolDeBalet("Rain", "Stevan", "23.04.2024", 70, 13, "Mediu", "Dadiv", 10, v_balerini, "Purple Rain");
+	pointerEvenimente[4] = new Piesa("Da si nu", "Stefan Gheorghe", "19.02.2024");
+	pointerEvenimente[5] = new Film();
+	pointerEvenimente[6] = new Film(3, actori, 8.77, "Anyone but you", 2023, 35);
+	pointerEvenimente[7] = new Piesa("Opriti planeta", "Rares Ionescu", "13.05.2024");
+	pointerEvenimente[8] = new SpectacolDeBalet();
+	pointerEvenimente[9] = new Film();
+
+	cout << " Sume Casierie: " << endl;
+	for (int i = 0; i < 10; i++) {
+		cout << pointerEvenimente[i]->Casierie() << " lei." << endl;
+	}
+	cout << endl;
+	cout << "Total - suma incasata : ";
+	double S = 0;
+	for (int i = 0; i < 10; i++) {
+		S = S + pointerEvenimente[i]->Casierie();
+	}
+	cout << S<<endl;
 
 };
